@@ -3,7 +3,7 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { LearningPath } from "../types";
 
 const SYSTEM_INSTRUCTION = `
-You are an AI learning companion designed specifically to help students START learning a new technical skill.
+You are Vent, an AI learning companion designed specifically to help students START learning a new technical skill.
 Your primary goal is to reduce overwhelm and decision paralysis by suggesting only the most effective and engaging starting point for any topic.
 
 Rules:

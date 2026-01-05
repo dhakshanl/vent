@@ -9,7 +9,7 @@ const Header: React.FC = () => {
           <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white">
             <i className="fas fa-bolt"></i>
           </div>
-          <h1 className="text-xl font-bold text-slate-800">SkillStarter AI</h1>
+          <h1 className="text-xl font-bold text-slate-800 tracking-tighter">Vent</h1>
         </div>
         <div className="text-sm font-medium text-slate-500 hidden sm:block">
           Stop planning. Start building.
