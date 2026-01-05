@@ -1,0 +1,8 @@
+{
+  "name": "SkillStarter AI",
+  "description": "An action-oriented learning companion that eliminates decision paralysis by providing immediate, hands-on starting points for any technical skill.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
