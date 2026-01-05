@@ -1,139 +1,81 @@
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import Header from './components/Header';
 import StarterOutput from './components/StarterOutput';
-import { getLearningPath } from './services/gemini';
+import { PREDEFINED_PATHS } from './services/staticData';
 import { LearningPath } from './types';
 
-const SUGGESTIONS = [
-  "Learn React and Tailwind",
-  "Start with Machine Learning",
-  "Learn Rust for System Dev",
-  "Learn C# for Game Design",
-  "Start with Data Science"
-];
-
 const App: React.FC = () => {
-  const [query, setQuery] = useState('');
-  const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<LearningPath | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const [selectedTopic, setSelectedTopic] = useState<string | null>(null);
 
-  const handleSubmit = async (e?: React.FormEvent) => {
-    e?.preventDefault();
-    if (!query.trim() || loading) return;
-
-    setLoading(true);
-    setError(null);
-    setResult(null);
-
-    try {
-      const path = await getLearningPath(query);
-      setResult(path);
-    } catch (err) {
-      console.error(err);
-      setError("Failed to generate path. Ensure you have an active internet connection and try again.");
-    } finally {
-      setLoading(false);
-    }
+  const handleSelect = (topic: string) => {
+    setSelectedTopic(topic);
+    setResult(PREDEFINED_PATHS[topic]);
+    // Scroll to results if they are visible
+    setTimeout(() => {
+      document.getElementById('starter-content')?.scrollIntoView({ behavior: 'smooth' });
+    }, 100);
   };
 
-  const handleSuggestion = (suggestion: string) => {
-    setQuery(suggestion);
-    inputRef.current?.focus();
-  };
-
-  // Focus input on mount
-  useEffect(() => {
-    inputRef.current?.focus();
-  }, []);
+  const topics = Object.keys(PREDEFINED_PATHS);
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-slate-50">
       <Header />
 
-      <main className="flex-1 max-w-5xl mx-auto w-full px-4 py-8 sm:py-12">
-        {/* Input Section */}
-        <div className={`transition-all duration-700 ${result ? 'mb-16' : 'mt-12 sm:mt-24'}`}>
-          <div className="text-center mb-10">
-            <h2 className={`text-3xl sm:text-5xl font-black text-slate-900 tracking-tight transition-all duration-500 ${result ? 'scale-75 origin-center' : 'scale-100'}`}>
-              What do you want to learn?
-            </h2>
-            {!result && (
-              <p className="mt-4 text-slate-500 text-lg">
-                Stop watching tutorials. Start building today.
-              </p>
-            )}
-          </div>
-
-          <form onSubmit={handleSubmit} className="relative max-w-2xl mx-auto group">
-            <input
-              ref={inputRef}
-              type="text"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="e.g. Learn Backend with Node.js"
-              className="w-full h-16 sm:h-20 pl-6 pr-32 bg-white border-2 border-slate-200 rounded-3xl text-xl focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-50 transition-all shadow-sm group-hover:shadow-md"
-              disabled={loading}
-            />
-            <button
-              type="submit"
-              disabled={loading || !query.trim()}
-              className="absolute right-3 top-3 bottom-3 px-6 bg-indigo-600 text-white font-bold rounded-2xl hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2"
-            >
-              {loading ? (
-                <i className="fas fa-circle-notch fa-spin"></i>
-              ) : (
-                <>
-                  <span className="hidden sm:inline">Get Started</span>
-                  <i className="fas fa-arrow-right"></i>
-                </>
-              )}
-            </button>
-          </form>
-
-          {!result && !loading && (
-            <div className="mt-8 flex flex-wrap justify-center gap-2 max-w-2xl mx-auto">
-              {SUGGESTIONS.map((s) => (
-                <button
-                  key={s}
-                  onClick={() => handleSuggestion(s)}
-                  className="px-4 py-2 bg-slate-100 text-slate-600 rounded-full text-sm font-medium hover:bg-slate-200 transition-colors"
-                >
-                  {s}
-                </button>
-              ))}
-            </div>
-          )}
+      <main className="flex-1 max-w-5xl mx-auto w-full px-4 py-8 sm:py-16">
+        <div className="text-center mb-12">
+          <h2 className="text-4xl sm:text-6xl font-black text-slate-900 tracking-tight mb-4">
+            Pick your path.
+          </h2>
+          <p className="text-slate-500 text-lg sm:text-xl max-w-2xl mx-auto">
+            No searching, no prompt engineering. Select a skill and get the exact project you need to start.
+          </p>
         </div>
 
-        {/* Error State */}
-        {error && (
-          <div className="max-w-2xl mx-auto bg-red-50 border border-red-100 text-red-800 p-4 rounded-xl flex items-center gap-3 animate-in fade-in zoom-in">
-            <i className="fas fa-circle-exclamation text-red-500"></i>
-            <p>{error}</p>
-          </div>
-        )}
+        {/* Selection Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-16">
+          {topics.map((topic) => (
+            <button
+              key={topic}
+              onClick={() => handleSelect(topic)}
+              className={`p-6 rounded-3xl text-left transition-all border-2 flex flex-col items-center justify-center gap-4 group ${
+                selectedTopic === topic 
+                ? 'bg-indigo-600 border-indigo-600 text-white shadow-xl scale-105' 
+                : 'bg-white border-slate-200 text-slate-600 hover:border-indigo-400 hover:shadow-lg'
+              }`}
+            >
+              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-xl transition-colors ${
+                selectedTopic === topic ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500 group-hover:bg-indigo-50 group-hover:text-indigo-600'
+              }`}>
+                {topic === "React & Tailwind" && <i className="fab fa-react"></i>}
+                {topic === "Machine Learning" && <i className="fas fa-brain"></i>}
+                {topic === "Rust System Dev" && <i className="fas fa-gear"></i>}
+                {topic === "C# Game Design" && <i className="fas fa-gamepad"></i>}
+                {topic === "Data Science" && <i className="fas fa-chart-bar"></i>}
+              </div>
+              <span className="font-bold text-center leading-tight">{topic}</span>
+            </button>
+          ))}
+        </div>
 
         {/* Result Content */}
-        {loading && !result && (
-          <div className="max-w-2xl mx-auto text-center py-12 space-y-4">
-            <div className="inline-block p-4 bg-indigo-50 rounded-full animate-pulse">
-              <i className="fas fa-brain text-indigo-600 text-3xl"></i>
+        <div id="starter-content">
+          {result && <StarterOutput path={result} />}
+        </div>
+        
+        {!result && (
+            <div className="flex flex-col items-center justify-center py-20 opacity-20 select-none">
+                <i className="fas fa-bolt text-8xl text-slate-300 mb-6"></i>
+                <p className="text-2xl font-bold text-slate-400">Select a skill to begin</p>
             </div>
-            <p className="text-slate-500 font-medium text-lg animate-pulse">
-              Cutting through the noise to find your best path...
-            </p>
-          </div>
         )}
-
-        {result && <StarterOutput path={result} />}
       </main>
 
       <footer className="py-8 border-t border-slate-200 bg-white">
         <div className="max-w-5xl mx-auto px-4 text-center text-slate-400 text-sm">
-          Built for builders. Zero fluff. 100% action.
+          Built for builders. Zero fluff. Predefined paths.
         </div>
       </footer>
     </div>
